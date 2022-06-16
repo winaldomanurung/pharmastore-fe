@@ -1,5 +1,5 @@
 .datatable {
-  height: 631px;
+  height: 650px;
   padding: 20px;
 
   .datatableTitle {
@@ -64,6 +64,14 @@
       border-radius: 5px;
       color: darkblue;
       border: 1px dotted rgba(0, 0, 139, 0.596);
+      cursor: pointer;
+    }
+
+    .updateButton {
+      padding: 2px 5px;
+      border-radius: 5px;
+      color: rgb(67, 201, 5);
+      border: 1px dotted rgb(67, 201, 5);
       cursor: pointer;
     }
 

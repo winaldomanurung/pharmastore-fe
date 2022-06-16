@@ -9,36 +9,56 @@ import "./style/dark.scss";
 import { useContext } from "react";
 import { DarkModeContext } from "./context/darkModeContext";
 import ProductList from "./pages/list-products/ProductList";
+import Update from "./pages/update/Update";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { Typography } from "@mui/material";
+
+const theme = createTheme({
+  typography: {
+    fontFamily: [
+      "Nunito",
+      "Roboto",
+      "Helvetica Neue",
+      "Arial",
+      "sans-serif",
+    ].join(","),
+  },
+});
 
 function App() {
   const { darkMode } = useContext(DarkModeContext);
 
   return (
     <div className={darkMode ? "app dark" : "app"}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/">
-            <Route index element={<Home />} />
-            <Route path="login" element={<Login />} />
-            <Route path="users">
-              <Route index element={<List />} />
-              <Route path=":userId" element={<Single />} />
-              <Route
-                path="new"
-                element={<New inputs={userInputs} title="Add New User" />}
-              />
+      <ThemeProvider theme={theme}>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/">
+              <Route index element={<Home />} />
+              <Route path="login" element={<Login />} />
+              <Route path="users">
+                <Route index element={<List />} />
+                <Route path=":userId" element={<Single />} />
+                <Route
+                  path="new"
+                  element={<New inputs={userInputs} title="Add New User" />}
+                />
+              </Route>
+              <Route path="products">
+                <Route index element={<ProductList />} />
+                <Route path=":productId" element={<Single />} />
+                <Route path="new" element={<New />} />
+                <Route
+                  path="update/:productId"
+                  element={
+                    <Update inputs={productInputs} title="Update Product" />
+                  }
+                />
+              </Route>
             </Route>
-            <Route path="products">
-              <Route index element={<ProductList />} />
-              <Route path=":productId" element={<Single />} />
-              <Route
-                path="new"
-                element={<New inputs={productInputs} title="Add New Product" />}
-              />
-            </Route>
-          </Route>
-        </Routes>
-      </BrowserRouter>
+          </Routes>
+        </BrowserRouter>
+      </ThemeProvider>
     </div>
   );
 }

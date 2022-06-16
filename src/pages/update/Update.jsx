@@ -3,8 +3,8 @@ import axios from "axios";
 import useInput from "../../hooks/useInput";
 import { URL_API } from "../../helpers";
 
-import "./new.scss";
-import styles from "./New.module.css";
+import "./update.scss";
+import styles from "./Update.module.css";
 
 import Spinner from "../../components/spinner/Spinner";
 import Sidebar from "../../components/sidebar/Sidebar";

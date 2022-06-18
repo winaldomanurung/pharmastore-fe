@@ -18,7 +18,14 @@ const style = {
   borderRadius: "20px",
 };
 
-export default function Error({ show, close, errorTitle, errorDescription }) {
+export default function Error({
+  withOptions,
+  show,
+  close,
+  confirm,
+  errorTitle,
+  errorDescription,
+}) {
   return (
     <div>
       <Modal
@@ -64,6 +71,25 @@ export default function Error({ show, close, errorTitle, errorDescription }) {
               >
                 {errorDescription}
               </Typography>
+              {withOptions ? (
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: " space-around",
+                    padding: "0 50px",
+                  }}
+                >
+                  <Button variant="outlined" color="error" onClick={confirm}>
+                    Yes
+                  </Button>
+                  <Button variant="outlined" color="primary" onClick={close}>
+                    Cancel
+                  </Button>
+                </Box>
+              ) : (
+                ""
+              )}
             </Box>
           </Box>
         </Fade>

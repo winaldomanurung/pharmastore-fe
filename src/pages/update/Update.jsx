@@ -1,7 +1,9 @@
 import axios from "axios";
+import { connect } from "react-redux";
 
 import useInput from "../../hooks/useInput";
 import { URL_API } from "../../helpers";
+import { useNavigate } from "react-router-dom";
 
 import "./update.scss";
 import styles from "./Update.module.css";
@@ -11,10 +13,10 @@ import Sidebar from "../../components/sidebar/Sidebar";
 import Navbar from "../../components/navbar/Navbar";
 import Error from "../../components/modals/Error";
 import Success from "../../components/modals/Success";
+import { productData } from "../../actions";
 
 import { styled } from "@mui/material/styles";
-import PhotoCamera from "@mui/icons-material/PhotoCamera";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   FormControl,
   InputLabel,
@@ -23,12 +25,12 @@ import {
   Button,
   Box,
   Typography,
-  IconButton,
   Select,
   MenuItem,
   Grid,
   InputAdornment,
 } from "@mui/material";
+import { useParams } from "react-router-dom";
 
 const productCategories = [
   "Antibiotika",
@@ -37,7 +39,7 @@ const productCategories = [
   "Antihipertensi",
   "Diuretika",
   "Antidiabetes",
-  "Antidiabetes",
+  "Antidepresant",
   "Analgetik-antipiretik",
   "Antialergi",
   "Kortikosteroid",
@@ -47,7 +49,7 @@ const productCategories = [
   "Cairan Parenteral",
 ];
 
-const New = () => {
+const Update = (props) => {
   //////////////////////
   // STATE DEFINITION //
   //////////////////////
@@ -62,26 +64,30 @@ const New = () => {
     title: "",
     description: "",
   });
-  const [addFile, setAddFile] = useState(null);
   const [categoryIsClicked, setCategoryIsClicked] = useState(null);
   const [unitIsClicked, setUnitIsClicked] = useState(null);
-  const [inputFileIsClicked, setInputFileIsClicked] = useState(null);
   const [categoryIsFocused, setCategoryIsFocused] = useState(null);
   const [unitIsFocused, setUnitIsFocused] = useState(null);
+  // const [product, setProduct] = useState("");
 
-  // const [values, setValues] = useState({
-  //   name: "",
-  //   description: "",
-  //   category: "",
-  //   price: "",
-  //   stock: "",
-  //   volume: "",
-  //   unit: "",
-  // });
+  // ///////////////////
+  // // DATA FETCHING //
+  // ///////////////////
+  const params = useParams();
+  const productId = params.productId;
+  let navigate = useNavigate();
 
-  const InputPhoto = styled("input")({
-    display: "none",
-  });
+  // useEffect(() => {
+  //   axios
+  //     .get(URL_API + `/admin/product/${productId}`)
+  //     .then((res) => {
+  //       setProduct(res.data.content);
+  //       props.productData(res.data.content);
+  //     })
+  //     .catch((err) => {
+  //       console.log(err);
+  //     });
+  // }, []);
 
   ////////////////////////////
   // INPUT FIELD VALIDATION //
@@ -108,7 +114,7 @@ const New = () => {
     inputBlurHandler: nameBlurHandler,
     reset: resetNameInput,
     isTouched: isNameTouched,
-  } = useInput(nameValidation);
+  } = useInput(nameValidation, props.productName);
 
   const {
     value: enteredDescription,
@@ -118,13 +124,13 @@ const New = () => {
     inputBlurHandler: descriptionBlurHandler,
     reset: resetDescriptionInput,
     isTouched: isDescriptionTouched,
-  } = useInput(descriptionValidation);
+  } = useInput(descriptionValidation, props.productDescription);
 
   const {
     value: enteredCategory,
     valueChangeHandler: categoryChangeHandler,
     reset: resetCategoryInput,
-  } = useInput(categoryValidation);
+  } = useInput(categoryValidation, props.productCategory);
 
   const {
     value: enteredPrice,
@@ -134,7 +140,7 @@ const New = () => {
     inputBlurHandler: priceBlurHandler,
     reset: resetPriceInput,
     isTouched: isPriceTouched,
-  } = useInput(priceValidation);
+  } = useInput(priceValidation, props.productPrice);
 
   const {
     value: enteredStock,
@@ -144,7 +150,7 @@ const New = () => {
     inputBlurHandler: stockBlurHandler,
     reset: resetStockInput,
     isTouched: isStockTouched,
-  } = useInput(stockValidation);
+  } = useInput(stockValidation, props.productStock);
 
   const {
     value: enteredVolume,
@@ -154,13 +160,13 @@ const New = () => {
     inputBlurHandler: volumeBlurHandler,
     reset: resetVolumeInput,
     isTouched: isVolumeTouched,
-  } = useInput(volumeValidation);
+  } = useInput(volumeValidation, props.productVolume);
 
   const {
     value: enteredUnit,
     valueChangeHandler: unitChangeHandler,
     reset: resetUnitInput,
-  } = useInput(unitValidation);
+  } = useInput(unitValidation, props.productUnit);
 
   ///////////////////
   // FORM VALIDITY //
@@ -193,16 +199,6 @@ const New = () => {
     enteredUnitIsValid = true;
     unitInputHasError = false;
   }
-  // 3) Image File
-  let enteredFileIsValid;
-  let fileInputHasError;
-  if (inputFileIsClicked == true && !addFile) {
-    enteredFileIsValid = false;
-    fileInputHasError = true;
-  } else {
-    enteredFileIsValid = true;
-    fileInputHasError = false;
-  }
 
   if (
     enteredNameIsValid &&
@@ -211,34 +207,10 @@ const New = () => {
     enteredPriceIsValid &&
     enteredStockIsValid &&
     enteredVolumeIsValid &&
-    enteredUnitIsValid &&
-    enteredFileIsValid &&
-    addFile
+    enteredUnitIsValid
   ) {
     formIsValid = true;
   }
-
-  // IMAGE HANDLING //
-  let preview = document.getElementById("imgpreview");
-  const onBtnAddFile = (e) => {
-    console.log(e);
-    console.log(e.target.files[0]);
-    setAddFile(e.target.files);
-    if (e.target.files[0]) {
-      function createImageItem(i) {
-        let image = document.createElement("img");
-        image.src = URL.createObjectURL(e.target.files[i]);
-        image.classList.add(`${styles["img-preview"]}`);
-
-        return image;
-      }
-
-      preview.replaceChildren();
-      for (var j = 0; j < e.target.files.length; j++) {
-        preview.appendChild(createImageItem(j));
-      }
-    }
-  };
 
   ////////////////////////
   // SUBMISSION HANDLER //
@@ -247,15 +219,11 @@ const New = () => {
     event.preventDefault();
     setCategoryIsClicked(false);
     setUnitIsClicked(false);
-    setInputFileIsClicked(false);
     setLoading(true);
 
     if (!formIsValid) {
       return;
     }
-
-    // Buat form data, agar bisa menampung file
-    let formData = new FormData();
 
     // Buat body nya
     let obj = {
@@ -267,27 +235,14 @@ const New = () => {
       volume: enteredVolume,
       unit: enteredUnit,
     };
-    // Masukkan body nya
-    formData.append("data", JSON.stringify(obj));
-
-    // Masukkan file nya
-    for (let i = 0; i < addFile.length; i++) {
-      let file = addFile.item(i);
-      formData.append("file", file);
-    }
-
-    for (var pair of formData.entries()) {
-      console.log(pair[0] + ", " + pair[1]);
-    }
 
     //buat requestnya
     console.log("masuk axios");
     axios
-      .post(URL_API + "/admin/product/create", formData)
+      .patch(URL_API + `/admin/product/${productId}/update`, obj)
       .then((res) => {
         console.log(res);
         setLoading(false);
-        setAddFile(null);
         resetNameInput();
         resetDescriptionInput();
         resetCategoryInput();
@@ -295,7 +250,6 @@ const New = () => {
         resetStockInput();
         resetVolumeInput();
         resetUnitInput();
-        preview.replaceChildren();
         setShowSuccess({
           ...showSuccess,
           open: true,
@@ -315,8 +269,6 @@ const New = () => {
       });
   };
 
-  console.log(fileInputHasError);
-
   return (
     <div className="new">
       <Sidebar />
@@ -328,22 +280,23 @@ const New = () => {
           errorTitle={showError.title}
           errorDescription={showError.description}
           show={showError.open}
-          close={() =>
+          close={() => {
             setShowError({
               open: false,
               title: "",
               description: "",
-            })
-          }
+            });
+          }}
         />
 
         <Success
           successTitle={showSuccess.title}
           successDescription={showSuccess.description}
           show={showSuccess.open}
-          close={() =>
-            setShowSuccess({ open: false, title: "", description: "" })
-          }
+          close={() => {
+            setShowSuccess({ open: false, title: "", description: "" });
+            return navigate(`/products`);
+          }}
         />
 
         <FormControl
@@ -363,7 +316,7 @@ const New = () => {
             <Typography
               sx={{ fontSize: "1.5rem", textAlign: "center", color: "#545252" }}
             >
-              Add Product Form
+              Update Product Form
             </Typography>
           </Box>
           <TextField
@@ -541,8 +494,8 @@ const New = () => {
                     onBlur={() => setUnitIsFocused(false)}
                     value={enteredUnit}
                   >
-                    <MenuItem value="tablets">tablets</MenuItem>
-                    <MenuItem value="pills">pills</MenuItem>
+                    <MenuItem value="tablet">tablet</MenuItem>
+                    <MenuItem value="pill">pill</MenuItem>
                     <MenuItem value="ml">ml</MenuItem>
                     <MenuItem value="gr">gr</MenuItem>
                   </Select>
@@ -555,53 +508,6 @@ const New = () => {
               </Box>
             </Grid>
           </Grid>
-          <label
-            htmlFor="photo"
-            style={{
-              display: "flex",
-              justifyContent: "flex-start",
-              alignItems: "center",
-              marginTop: "25px",
-            }}
-          >
-            <InputPhoto
-              accept="image/*"
-              name="photo"
-              id="photo"
-              type="file"
-              onChange={onBtnAddFile}
-            />
-            <IconButton
-              color={fileInputHasError ? "error" : "primary"}
-              aria-label="upload picture"
-              component="span"
-              onClick={() => setInputFileIsClicked(true)}
-            >
-              <PhotoCamera />
-            </IconButton>
-            <Button
-              variant="outlined"
-              size="medium"
-              color={fileInputHasError ? "error" : "primary"}
-              component="span"
-              onClick={() => setInputFileIsClicked(true)}
-            >
-              Select image
-            </Button>
-          </label>
-          <Typography
-            id="imgpreview"
-            className="img-container"
-            sx={{
-              position: "relative",
-              borderRadius: "10px",
-              fontSize: "0.9rem",
-            }}
-            color={fileInputHasError ? "red" : "#bfc2c6"}
-            onClick={() => setInputFileIsClicked(true)}
-          >
-            Please select product image.
-          </Typography>
 
           <Button
             variant="contained"
@@ -611,7 +517,7 @@ const New = () => {
             onClick={submitHandler}
             disabled={formIsValid ? false : true}
           >
-            Create Product
+            Update Product
           </Button>
         </FormControl>
       </div>
@@ -619,4 +525,22 @@ const New = () => {
   );
 };
 
-export default New;
+const mapStateToProps = (state) => {
+  return {
+    productName: state.productReducer.name,
+    productDescription: state.productReducer.description,
+    productCategory: state.productReducer.category,
+    productPrice: state.productReducer.price,
+    productStock: state.productReducer.stock,
+    productVolume: state.productReducer.volume,
+    productUnit: state.productReducer.unit,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    productData: (data) => dispatch(productData(data)),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Update);

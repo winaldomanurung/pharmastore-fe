@@ -37,7 +37,7 @@ const productCategories = [
   "Antihipertensi",
   "Diuretika",
   "Antidiabetes",
-  "Antidiabetes",
+  "Antidepresant",
   "Analgetik-antipiretik",
   "Antialergi",
   "Kortikosteroid",
@@ -541,8 +541,8 @@ const New = () => {
                     onBlur={() => setUnitIsFocused(false)}
                     value={enteredUnit}
                   >
-                    <MenuItem value="tablets">tablets</MenuItem>
-                    <MenuItem value="pills">pills</MenuItem>
+                    <MenuItem value="tablet">tablet</MenuItem>
+                    <MenuItem value="pill">pill</MenuItem>
                     <MenuItem value="ml">ml</MenuItem>
                     <MenuItem value="gr">gr</MenuItem>
                   </Select>

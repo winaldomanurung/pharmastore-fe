@@ -19,8 +19,10 @@ const style = {
 };
 
 export default function Success({
+  withOptions,
   show,
   close,
+  confirm,
   successTitle,
   successDescription,
 }) {
@@ -69,6 +71,25 @@ export default function Success({
               >
                 {successDescription}
               </Typography>
+              {withOptions ? (
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: " space-around",
+                    padding: "0 50px",
+                  }}
+                >
+                  <Button variant="outlined" color="primary" onClick={confirm}>
+                    Yes
+                  </Button>
+                  <Button variant="outlined" color="error" onClick={close}>
+                    Cancel
+                  </Button>
+                </Box>
+              ) : (
+                ""
+              )}
             </Box>
           </Box>
         </Fade>

@@ -12,6 +12,8 @@ import ProductList from "./pages/list-products/ProductList";
 import Update from "./pages/update/Update";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { Typography } from "@mui/material";
+import Product from "./components/product-details/ProductDetails";
+import ProductDetailsPage from "./pages/detail-product/ProductDetailsPage";
 
 const theme = createTheme({
   typography: {
@@ -46,7 +48,7 @@ function App() {
               </Route>
               <Route path="products">
                 <Route index element={<ProductList />} />
-                <Route path=":productId" element={<Single />} />
+                <Route path=":productId" element={<ProductDetailsPage />} />
                 <Route path="new" element={<New />} />
                 <Route
                   path="update/:productId"

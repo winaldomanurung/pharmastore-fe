@@ -14,6 +14,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { Typography } from "@mui/material";
 import Product from "./components/product-details/ProductDetails";
 import ProductDetailsPage from "./pages/detail-product/ProductDetailsPage";
+import CategoriesList from "./pages/list-categories/CategoriesList";
 
 const theme = createTheme({
   typography: {
@@ -48,6 +49,17 @@ function App() {
               </Route>
               <Route path="products">
                 <Route index element={<ProductList />} />
+                <Route path=":productId" element={<ProductDetailsPage />} />
+                <Route path="new" element={<New />} />
+                <Route
+                  path="update/:productId"
+                  element={
+                    <Update inputs={productInputs} title="Update Product" />
+                  }
+                />
+              </Route>
+              <Route path="categories">
+                <Route index element={<CategoriesList />} />
                 <Route path=":productId" element={<ProductDetailsPage />} />
                 <Route path="new" element={<New />} />
                 <Route

@@ -32,22 +32,22 @@ import {
 } from "@mui/material";
 import { useParams } from "react-router-dom";
 
-const productCategories = [
-  "Antibiotika",
-  "Antijamur",
-  "Antiseptika",
-  "Antihipertensi",
-  "Diuretika",
-  "Antidiabetes",
-  "Antidepresant",
-  "Analgetik-antipiretik",
-  "Antialergi",
-  "Kortikosteroid",
-  "Obat saluran cerna",
-  "Obat saluran nafas",
-  "Komedolitik",
-  "Cairan Parenteral",
-];
+// const productCategories = [
+//   "Antibiotika",
+//   "Antijamur",
+//   "Antiseptika",
+//   "Antihipertensi",
+//   "Diuretika",
+//   "Antidiabetes",
+//   "Antidepresant",
+//   "Analgetik-antipiretik",
+//   "Antialergi",
+//   "Kortikosteroid",
+//   "Obat saluran cerna",
+//   "Obat saluran nafas",
+//   "Komedolitik",
+//   "Cairan Parenteral",
+// ];
 
 const Update = (props) => {
   //////////////////////
@@ -69,6 +69,7 @@ const Update = (props) => {
   const [categoryIsFocused, setCategoryIsFocused] = useState(null);
   const [unitIsFocused, setUnitIsFocused] = useState(null);
   // const [product, setProduct] = useState("");
+  const [productCategories, setProductCategories] = useState([]);
 
   // ///////////////////
   // // DATA FETCHING //
@@ -88,6 +89,25 @@ const Update = (props) => {
   //       console.log(err);
   //     });
   // }, []);
+
+  ////////////////////////////
+  // CATEGORY DATA FETCHING //
+  ////////////////////////////
+
+  useEffect(() => {
+    let fetchUrl = `${URL_API}/admin/categories`;
+    //  ?page=${page + 1}&limit=${rowsPerPage};
+
+    // console.log(fetchUrl);
+    axios
+      .get(fetchUrl)
+      .then((res) => {
+        setProductCategories(() => res.data.content);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
 
   ////////////////////////////
   // INPUT FIELD VALIDATION //
@@ -382,8 +402,8 @@ const Update = (props) => {
                 {productCategories &&
                   productCategories.map((c, i) => {
                     return (
-                      <MenuItem key={i} value={c}>
-                        {c}
+                      <MenuItem key={i} value={c.id}>
+                        {c.name}
                       </MenuItem>
                     );
                   })}

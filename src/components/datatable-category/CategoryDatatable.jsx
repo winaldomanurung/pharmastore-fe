@@ -58,23 +58,7 @@ import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
-
-const productCategories = [
-  "Antibiotika",
-  "Antijamur",
-  "Antiseptika",
-  "Antihipertensi",
-  "Diuretika",
-  "Antidiabetes",
-  "Antidepresant",
-  "Analgetik-antipiretik",
-  "Antialergi",
-  "Kortikosteroid",
-  "Obat saluran cerna",
-  "Obat saluran nafas",
-  "Komedolitik",
-  "Cairan Parenteral",
-];
+import Form from "../modals/Form";
 
 function createData(id, name) {
   return {
@@ -146,6 +130,8 @@ function EnhancedTable(props) {
   });
 
   const [newCategory, setNewCategory] = useState(false);
+  const [categoryData, setCategoryData] = useState("");
+  const [onStartEdit, setOnStartEdit] = useState(false);
 
   let navigate = useNavigate();
 
@@ -265,7 +251,7 @@ function EnhancedTable(props) {
       <Box
         sx={{
           display: "flex",
-          // justifyContent: "start",
+          justifyContent: "start",
           // margin: "-60px 0 25px 0",
           marginBottom: "20px",
           width: "100%",
@@ -308,14 +294,21 @@ function EnhancedTable(props) {
               <Success
                 withOptions={true}
                 successTitle="Confirmation"
-                successDescription="Do you want to update this product?"
+                successDescription={`Do you want to update this category?`}
                 show={onEdit}
                 close={() => setOnEdit(false)}
-                confirm={() =>
+                confirm={() => {
                   // navigate(`/products/update/${productId}`)
-                  console.log("lala")
-                }
+                  console.log(categoryData);
+                  setOnStartEdit(true);
+                }}
               />
+
+              <Form
+                successTitle={categoryData[0].name}
+                show={onStartEdit}
+                close={() => setOnStartEdit(false)}
+              ></Form>
 
               <Error
                 errorTitle={showError.title}
@@ -387,7 +380,7 @@ function EnhancedTable(props) {
                                 axios
                                   .get(URL_API + `/admin/categories/${row.id}`)
                                   .then((res) => {
-                                    props.productData(res.data.content);
+                                    setCategoryData(res.data.content);
                                   })
                                   .catch((err) => {
                                     console.log(err);

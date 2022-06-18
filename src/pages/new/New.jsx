@@ -14,7 +14,7 @@ import Success from "../../components/modals/Success";
 
 import { styled } from "@mui/material/styles";
 import PhotoCamera from "@mui/icons-material/PhotoCamera";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FormControl,
   InputLabel,
@@ -30,22 +30,22 @@ import {
   InputAdornment,
 } from "@mui/material";
 
-const productCategories = [
-  "Antibiotika",
-  "Antijamur",
-  "Antiseptika",
-  "Antihipertensi",
-  "Diuretika",
-  "Antidiabetes",
-  "Antidepresant",
-  "Analgetik-antipiretik",
-  "Antialergi",
-  "Kortikosteroid",
-  "Obat saluran cerna",
-  "Obat saluran nafas",
-  "Komedolitik",
-  "Cairan Parenteral",
-];
+// const productCategories = [
+//   "Antibiotika",
+//   "Antijamur",
+//   "Antiseptika",
+//   "Antihipertensi",
+//   "Diuretika",
+//   "Antidiabetes",
+//   "Antidepresant",
+//   "Analgetik-antipiretik",
+//   "Antialergi",
+//   "Kortikosteroid",
+//   "Obat saluran cerna",
+//   "Obat saluran nafas",
+//   "Komedolitik",
+//   "Cairan Parenteral",
+// ];
 
 const New = () => {
   //////////////////////
@@ -68,6 +68,7 @@ const New = () => {
   const [inputFileIsClicked, setInputFileIsClicked] = useState(null);
   const [categoryIsFocused, setCategoryIsFocused] = useState(null);
   const [unitIsFocused, setUnitIsFocused] = useState(null);
+  const [productCategories, setProductCategories] = useState([]);
 
   // const [values, setValues] = useState({
   //   name: "",
@@ -82,6 +83,25 @@ const New = () => {
   const InputPhoto = styled("input")({
     display: "none",
   });
+
+  ////////////////////////////
+  // CATEGORY DATA FETCHING //
+  ////////////////////////////
+
+  useEffect(() => {
+    let fetchUrl = `${URL_API}/admin/categories`;
+    //  ?page=${page + 1}&limit=${rowsPerPage};
+
+    // console.log(fetchUrl);
+    axios
+      .get(fetchUrl)
+      .then((res) => {
+        setProductCategories(() => res.data.content);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
 
   ////////////////////////////
   // INPUT FIELD VALIDATION //
@@ -429,8 +449,8 @@ const New = () => {
                 {productCategories &&
                   productCategories.map((c, i) => {
                     return (
-                      <MenuItem key={i} value={c}>
-                        {c}
+                      <MenuItem key={i} value={c.id}>
+                        {c.name}
                       </MenuItem>
                     );
                   })}

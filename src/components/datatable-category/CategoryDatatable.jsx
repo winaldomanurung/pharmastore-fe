@@ -9,15 +9,10 @@ import { connect } from "react-redux";
 import "./datatable.scss";
 
 import Spinner from "../spinner/Spinner";
-import Sidebar from "../sidebar/Sidebar";
-import Navbar from "../navbar/Navbar";
 import Error from "../modals/Error";
 import Success from "../modals/Success";
 
 import { productData } from "../../actions";
-
-import PropTypes from "prop-types";
-import { alpha } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -26,39 +21,15 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
-import TableSortLabel from "@mui/material/TableSortLabel";
-import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
-import Checkbox from "@mui/material/Checkbox";
-import IconButton from "@mui/material/IconButton";
-import Tooltip from "@mui/material/Tooltip";
 import Switch from "@mui/material/Switch";
 import DeleteIcon from "@mui/icons-material/Delete";
-import FilterListIcon from "@mui/icons-material/FilterList";
-import { visuallyHidden } from "@mui/utils";
-import { Alert, AlertTitle, Button, Container, TextField } from "@mui/material";
-import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import { Alert, Button, Container, TextField } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
-import SwipeableDrawer from "@mui/material/SwipeableDrawer";
-import List from "@mui/material/List";
-import Divider from "@mui/material/Divider";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import MailIcon from "@mui/icons-material/Mail";
-import SearchIcon from "@mui/icons-material/Search";
-import { styled } from "@mui/material/styles";
-import InputBase from "@mui/material/InputBase";
-import Radio from "@mui/material/Radio";
-import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import FormControl from "@mui/material/FormControl";
-import FormLabel from "@mui/material/FormLabel";
-import Form from "../modals/Form";
+import CheckIcon from "@mui/icons-material/Check";
+import CloseIcon from "@mui/icons-material/Close";
 
 function createData(id, name) {
   return {
@@ -115,7 +86,6 @@ function EnhancedTable(props) {
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
   const [onDelete, setOnDelete] = useState(false);
-  const [onEdit, setOnEdit] = useState(false);
   const [categoryId, setCategoryId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState({
@@ -129,15 +99,17 @@ function EnhancedTable(props) {
     description: "",
   });
 
-  const [newCategory, setNewCategory] = useState(false);
-  const [categoryData, setCategoryData] = useState("");
-  const [onStartEdit, setOnStartEdit] = useState(false);
+  const [newCategory, setNewCategory] = useState("");
+  const [categoryName, setCategoryName] = useState("");
+  const [editCategoryId, setEditCategoryId] = useState(null);
 
   let navigate = useNavigate();
 
   // Make axios request
   useEffect(() => {
-    let fetchUrl = `${URL_API}/admin/categories`;
+    let fetchUrl = `${URL_API}/admin/categories?page=${
+      page + 1
+    }&limit=${rowsPerPage}`;
     //  ?page=${page + 1}&limit=${rowsPerPage};
 
     // console.log(fetchUrl);
@@ -184,12 +156,49 @@ function EnhancedTable(props) {
       })
       .then((res) => {
         setLoading(false);
+        setNewCategory("");
         setShowSuccess({
           ...showSuccess,
           open: true,
           title: res.data.subject,
           description: res.data.message,
         });
+      })
+      .catch((err) => {
+        setLoading(false);
+        setNewCategory("");
+        setShowError({
+          ...showError,
+          open: true,
+          title: err.response.data.subject,
+          description: err.response.data.message,
+        });
+      });
+  };
+
+  const editHandler = (event, row) => {
+    setEditCategoryId(row.id);
+    setCategoryName(row.name);
+  };
+
+  const editChangeHandler = (event) => {
+    setCategoryName(event.target.value);
+  };
+
+  const editSubmitHandler = () => {
+    axios
+      .patch(URL_API + `/admin/categories/${editCategoryId}/update`, {
+        name: categoryName,
+      })
+      .then((res) => {
+        setLoading(false);
+        setShowSuccess({
+          ...showSuccess,
+          open: true,
+          title: res.data.subject,
+          description: res.data.message,
+        });
+        setEditCategoryId(null);
       })
       .catch((err) => {
         setLoading(false);
@@ -232,10 +241,6 @@ function EnhancedTable(props) {
       });
   };
 
-  // console.log(sort);
-  // console.log(searchQuery);
-  // console.log(categoryFilterSelected);
-
   return (
     <Container sx={{ width: "100%" }} maxWidth="sm">
       <Box
@@ -270,6 +275,7 @@ function EnhancedTable(props) {
             // width: "80%",
           }}
           size="small"
+          value={newCategory}
         />
 
         <Button variant="contained" onClick={addHandler}>
@@ -290,25 +296,6 @@ function EnhancedTable(props) {
                 close={() => setOnDelete(false)}
                 confirm={deleteHandler}
               />
-
-              <Success
-                withOptions={true}
-                successTitle="Confirmation"
-                successDescription={`Do you want to update this category?`}
-                show={onEdit}
-                close={() => setOnEdit(false)}
-                confirm={() => {
-                  // navigate(`/products/update/${productId}`)
-                  console.log(categoryData);
-                  setOnStartEdit(true);
-                }}
-              />
-
-              <Form
-                successTitle={categoryData[0].name}
-                show={onStartEdit}
-                close={() => setOnStartEdit(false)}
-              ></Form>
 
               <Error
                 errorTitle={showError.title}
@@ -343,7 +330,8 @@ function EnhancedTable(props) {
                   {rows.map((row, index) => {
                     const labelId = `enhanced-table-checkbox-${index}`;
 
-                    return (
+                    return editCategoryId != row.id ? (
+                      // Read Ony
                       <TableRow hover role="checkbox" tabIndex={-1} key={index}>
                         <TableCell
                           component="th"
@@ -373,19 +361,7 @@ function EnhancedTable(props) {
                                 marginRight: "5px",
                               }}
                               color="success"
-                              onClick={() => {
-                                setOnEdit(true);
-                                setCategoryId(row.id);
-                                // console.log(`/admin/product/${row.id}`);
-                                axios
-                                  .get(URL_API + `/admin/categories/${row.id}`)
-                                  .then((res) => {
-                                    setCategoryData(res.data.content);
-                                  })
-                                  .catch((err) => {
-                                    console.log(err);
-                                  });
-                              }}
+                              onClick={(event) => editHandler(event, row)}
                             >
                               <EditIcon fontSize="small" />
                             </Button>
@@ -403,6 +379,71 @@ function EnhancedTable(props) {
                               }}
                             >
                               <DeleteIcon fontSize="small" />
+                            </Button>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      // Edit
+                      <TableRow hover role="checkbox" tabIndex={-1} key={index}>
+                        <TableCell
+                          component="th"
+                          id={labelId}
+                          scope="row"
+                          padding="none"
+                          sx={{ margin: "auto", textAlign: "center" }}
+                        >
+                          {row.id}
+                        </TableCell>
+                        {/* <TableCell align="center">{row.name}</TableCell> */}
+
+                        <TableCell align="center">
+                          <TextField
+                            id="outlined-basic"
+                            variant="outlined"
+                            size="small"
+                            required={true}
+                            name="name"
+                            placeholder="Enter a category name..."
+                            onChange={editChangeHandler}
+                            value={categoryName}
+                          />
+                        </TableCell>
+
+                        <TableCell align="center">
+                          <Box
+                            className="cellAction"
+                            sx={{
+                              display: "flex",
+                              flexDirection: "row",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <Button
+                              variant="outlined"
+                              sx={{
+                                padding: "2px 0",
+                                marginRight: "5px",
+                              }}
+                              color="success"
+                              onClick={editSubmitHandler}
+                            >
+                              <CheckIcon fontSize="small" />
+                            </Button>
+                            {/* </Link> */}
+                            <Button
+                              variant="outlined"
+                              sx={{
+                                // marginLeft: "3px",
+                                padding: "2px 0",
+                              }}
+                              color="error"
+                              onClick={() => {
+                                setEditCategoryId(null);
+                              }}
+                            >
+                              <CloseIcon fontSize="small" />
                             </Button>
                           </Box>
                         </TableCell>

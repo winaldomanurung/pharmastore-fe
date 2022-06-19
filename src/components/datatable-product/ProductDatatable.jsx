@@ -59,22 +59,22 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
 
-const productCategories = [
-  "Antibiotika",
-  "Antijamur",
-  "Antiseptika",
-  "Antihipertensi",
-  "Diuretika",
-  "Antidiabetes",
-  "Antidepresant",
-  "Analgetik-antipiretik",
-  "Antialergi",
-  "Kortikosteroid",
-  "Obat saluran cerna",
-  "Obat saluran nafas",
-  "Komedolitik",
-  "Cairan Parenteral",
-];
+// const productCategories = [
+//   "Antibiotika",
+//   "Antijamur",
+//   "Antiseptika",
+//   "Antihipertensi",
+//   "Diuretika",
+//   "Antidiabetes",
+//   "Antidepresant",
+//   "Analgetik-antipiretik",
+//   "Antialergi",
+//   "Kortikosteroid",
+//   "Obat saluran cerna",
+//   "Obat saluran nafas",
+//   "Komedolitik",
+//   "Cairan Parenteral",
+// ];
 
 function createData(
   id,
@@ -83,6 +83,7 @@ function createData(
   category,
   description,
   price,
+  sold,
   stock,
   volume,
   unit
@@ -94,6 +95,7 @@ function createData(
     category,
     description,
     price,
+    sold,
     stock,
     volume,
     unit,
@@ -136,6 +138,12 @@ const headCells = [
     numeric: true,
     disablePadding: false,
     label: "Price",
+  },
+  {
+    id: "sold",
+    numeric: true,
+    disablePadding: false,
+    label: "Sold",
   },
   {
     id: "stock",
@@ -187,6 +195,26 @@ function FilterDrawer({ categoryFilterSelected, setCategoryFilterSelected }) {
     right: false,
   });
   const [categoryFilter, setCategoryFilter] = useState("");
+  const [productCategories, setProductCategories] = useState([]);
+
+  ////////////////////////////
+  // CATEGORY DATA FETCHING //
+  ////////////////////////////
+
+  useEffect(() => {
+    let fetchUrl = `${URL_API}/admin/categories`;
+    //  ?page=${page + 1}&limit=${rowsPerPage};
+
+    // console.log(fetchUrl);
+    axios
+      .get(fetchUrl)
+      .then((res) => {
+        setProductCategories(() => res.data.content);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
 
   const toggleDrawer = (anchor, open) => (event) => {
     if (
@@ -251,9 +279,9 @@ function FilterDrawer({ categoryFilterSelected, setCategoryFilterSelected }) {
                   {productCategories.map((c, index) => {
                     return (
                       <FormControlLabel
-                        value={c}
+                        value={c.id}
                         control={<Radio />}
-                        label={c}
+                        label={c.name}
                         key={index}
                       />
                     );
@@ -357,6 +385,11 @@ function SortDrawer({ sort, setSort }) {
                     value="price"
                     control={<Radio />}
                     label="Price"
+                  />
+                  <FormControlLabel
+                    value="sold"
+                    control={<Radio />}
+                    label="Sold"
                   />
                   <FormControlLabel
                     value="sold"
@@ -512,6 +545,7 @@ function EnhancedTable(props) {
         data[i].category,
         data[i].description,
         data[i].price,
+        data[i].sold,
         data[i].stock,
         data[i].volume,
         data[i].unit
@@ -701,7 +735,8 @@ function EnhancedTable(props) {
                         </TableCell>
                         <TableCell align="center">{row.category}</TableCell>
                         <TableCell align="center">{row.description}</TableCell>
-                        <TableCell align="center">{row.price}</TableCell>
+                        <TableCell align="center">{row.price}</TableCell>{" "}
+                        <TableCell align="center">{row.sold}</TableCell>
                         <TableCell align="center">{row.stock}</TableCell>
                         <TableCell align="center">{row.volume}</TableCell>
                         <TableCell align="center">{row.unit}</TableCell>
@@ -819,6 +854,7 @@ const mapStateToProps = (state) => {
     productDescription: state.productReducer.description,
     productCategory: state.productReducer.category,
     productPrice: state.productReducer.price,
+    productSold: state.productReducer.sold,
     productStock: state.productReducer.stock,
     productVolume: state.productReducer.volume,
     productUnit: state.productReducer.unit,
